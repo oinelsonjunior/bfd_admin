@@ -16,7 +16,7 @@ export function TiposServico() {
   // loading removido
 
   const carregar = () => {
-    tiposApi.listar().then(r => { setTipos(r.data); setLoading(false); });
+    tiposApi.listar().then(r => { setTipos(r.data);  });
   };
 
   useEffect(() => { carregar(); }, []);
