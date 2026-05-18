@@ -13,7 +13,7 @@ export function TiposServico() {
   const [modal, setModal] = useState(false);
   const [editando, setEditando] = useState<TipoServico | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [loading, setLoading] = useState(true);
+  // loading removido
 
   const carregar = () => {
     tiposApi.listar().then(r => { setTipos(r.data); setLoading(false); });
