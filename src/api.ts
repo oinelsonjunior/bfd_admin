@@ -35,6 +35,7 @@ export const adminApi = {
   desbloquear: (id: string) => api.patch(`/admin/usuarios/${id}/desbloquear`),
   clientes: () => api.get('/admin/clientes'),
   servicos: () => api.get('/admin/servicos'),
+  uploadFoto: (id: string, base64: string) => api.post(`/admin/diaristas/${id}/foto`, { base64 }),
 };
 
 export const tiposApi = {
