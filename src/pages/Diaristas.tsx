@@ -27,6 +27,13 @@ export function Diaristas() {
     carregar();
   };
 
+  const bloquear = async (id: string, ativo: boolean) => {
+    if (!confirm(ativo ? 'Bloquear esta diarista?' : 'Desbloquear esta diarista?')) return;
+    if (ativo) await adminApi.bloquear(id);
+    else await adminApi.desbloquear(id);
+    carregar();
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -36,7 +43,6 @@ export function Diaristas() {
         </div>
       </div>
 
-      {/* Filtros */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         {(['todas', 'pendentes', 'aprovadas'] as const).map(f => (
           <button key={f} onClick={() => setFiltro(f)}
@@ -58,7 +64,8 @@ export function Diaristas() {
                 <th>Nome</th>
                 <th>E-mail</th>
                 <th>Telefone</th>
-                <th>Status</th>
+                <th>Aprovação</th>
+                <th>Conta</th>
                 <th>Cadastro</th>
                 <th>Ações</th>
               </tr>
@@ -75,6 +82,11 @@ export function Diaristas() {
                       : <span className="badge badge-warning">⏳ Pendente</span>
                     }
                   </td>
+                  <td>
+                    <span className={`badge ${d.ativo ? 'badge-success' : 'badge-danger'}`}>
+                      {d.ativo ? '✓ Ativa' : '✕ Bloqueada'}
+                    </span>
+                  </td>
                   <td style={{ color: 'var(--text-muted)' }}>
                     {new Date(d.createdAt).toLocaleDateString('pt-BR')}
                   </td>
@@ -90,6 +102,11 @@ export function Diaristas() {
                           ✕ Reprovar
                         </button>
                       )}
+                      <button
+                        className={`btn btn-sm ${d.ativo ? 'btn-danger' : 'btn-success'}`}
+                        onClick={() => bloquear(d.id, d.ativo)}>
+                        {d.ativo ? '🔒' : '🔓'}
+                      </button>
                     </div>
                   </td>
                 </tr>
