@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Diaristas } from './pages/Diaristas';
 import { Clientes } from './pages/Clientes';
 import { TiposServico } from './pages/TiposServico';
+import { Servicos } from './pages/Servicos';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('admin_token');
@@ -20,7 +21,8 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="diaristas" element={<Diaristas />} />
           <Route path="clientes" element={<Clientes />} />
-          <Route path="servicos" element={<TiposServico />} />
+          <Route path="servicos" element={<Servicos />} />
+          <Route path="tipos-servico" element={<TiposServico />} />
         </Route>
       </Routes>
     </BrowserRouter>

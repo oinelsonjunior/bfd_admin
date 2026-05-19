@@ -4,14 +4,12 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://bfd-api.onrender.com/ap
 
 export const api = axios.create({ baseURL: API_URL });
 
-// Injeta token automaticamente
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('admin_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Redireciona para login se 401
 api.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -23,23 +21,22 @@ api.interceptors.response.use(
   }
 );
 
-// ── Auth ──────────────────────────────────────────────────────────────────
 export const authApi = {
-  login: (email: string, senha: string) =>
-    api.post('/auth/login', { email, senha }),
+  login: (email: string, senha: string) => api.post('/auth/login', { email, senha }),
 };
 
-// ── Admin ─────────────────────────────────────────────────────────────────
 export const adminApi = {
   dashboard: () => api.get('/admin/dashboard'),
   diaristas: (aprovadas?: boolean) =>
     api.get('/admin/diaristas', { params: aprovadas !== undefined ? { aprovadas } : {} }),
   aprovar: (id: string) => api.patch(`/admin/diaristas/${id}/aprovar`),
   reprovar: (id: string) => api.patch(`/admin/diaristas/${id}/reprovar`),
+  bloquear: (id: string) => api.patch(`/admin/usuarios/${id}/bloquear`),
+  desbloquear: (id: string) => api.patch(`/admin/usuarios/${id}/desbloquear`),
   clientes: () => api.get('/admin/clientes'),
+  servicos: () => api.get('/admin/servicos'),
 };
 
-// ── Tipos de Serviço ──────────────────────────────────────────────────────
 export const tiposApi = {
   listar: () => api.get('/tipos-servico/todos'),
   criar: (data: any) => api.post('/tipos-servico', data),

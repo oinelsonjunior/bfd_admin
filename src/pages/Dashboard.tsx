@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '../api';
 
-interface Stats { totalClientes: number; totalDiaristas: number; diaristasNaoAprovadas: number; }
+interface Stats {
+  totalClientes: number;
+  totalDiaristas: number;
+  diaristasNaoAprovadas: number;
+  totalServicos: number;
+  servicosConcluidos: number;
+  receitaTotal: number;
+}
 
 export function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -14,6 +21,9 @@ export function Dashboard() {
     { label: 'Clientes cadastrados', value: stats?.totalClientes ?? '—', icon: '👤', color: '#3b82f6' },
     { label: 'Diaristas ativas', value: stats?.totalDiaristas ?? '—', icon: '👩‍💼', color: '#10b981' },
     { label: 'Aguardando aprovação', value: stats?.diaristasNaoAprovadas ?? '—', icon: '⏳', color: '#f59e0b' },
+    { label: 'Total de serviços', value: stats?.totalServicos ?? '—', icon: '📋', color: '#8b5cf6' },
+    { label: 'Serviços concluídos', value: stats?.servicosConcluidos ?? '—', icon: '✅', color: '#10b981' },
+    { label: 'Receita total', value: stats ? `R$ ${Number(stats.receitaTotal).toFixed(2)}` : '—', icon: '💰', color: '#FA7D23' },
   ];
 
   return (
@@ -26,7 +36,7 @@ export function Dashboard() {
           <div key={card.label} className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{
               width: 56, height: 56, borderRadius: 12, background: card.color + '20',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0,
             }}>
               {card.icon}
             </div>
