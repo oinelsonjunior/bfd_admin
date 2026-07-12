@@ -31,6 +31,8 @@ export const adminApi = {
   servicos: () => api.get('/admin/servicos'),
   pagamentos: () => api.get('/admin/pagamentos'),
   cancelarServico: (id: string) => api.post(`/admin/servicos/${id}/cancelar`),
+  servicosCliente: (id: string) => api.get(`/admin/clientes/${id}/servicos`),
+  servicosDiarista: (id: string) => api.get(`/admin/diaristas/${id}/servicos`),
   enviarPush: (titulo: string, mensagem: string, role: string) => api.post('/admin/push', { titulo, mensagem, role }),
   uploadFoto: (id: string, base64: string) => api.post(`/admin/diaristas/${id}/foto`, { base64 }),
 };

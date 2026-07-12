@@ -7,12 +7,25 @@ export function Clientes() {
   const [busca, setBusca] = useState('');
   const [selecionado, setSelecionado] = useState<any>(null);
   const [acao, setAcao] = useState<string | null>(null);
+  const [historico, setHistorico] = useState<any[]>([]);
+  const [loadingHistorico, setLoadingHistorico] = useState(false);
 
   const carregar = () => {
     adminApi.clientes().then(r => { setClientes(r.data); setLoading(false); });
   };
 
   useEffect(() => { carregar(); }, []);
+
+  const verCliente = async (cliente: any) => {
+    setSelecionado(cliente);
+    setLoadingHistorico(true);
+    try {
+      const r = await adminApi.servicosCliente(cliente.id);
+      setHistorico(r.data);
+    } finally {
+      setLoadingHistorico(false);
+    }
+  };
 
   const bloquear = async (id: string, ativo: boolean) => {
     setAcao(id);
@@ -82,7 +95,7 @@ export function Clientes() {
                 </td>
                 <td style={{ padding: '12px 16px', fontSize: 12, color: '#888' }}>{new Date(c.createdAt).toLocaleDateString('pt-BR')}</td>
                 <td style={{ padding: '12px 16px', textAlign: 'center', display: 'flex', gap: 6, justifyContent: 'center' }}>
-                  <button onClick={() => setSelecionado(c)} style={{ padding: '4px 10px', background: '#28206020', color: '#282060', border: '1px solid #282060', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>
+                  <button onClick={() => verCliente(c)} style={{ padding: '4px 10px', background: '#28206020', color: '#282060', border: '1px solid #282060', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>
                     Ver
                   </button>
                   <button onClick={() => bloquear(c.id, c.ativo)} disabled={acao === c.id} style={{
@@ -117,6 +130,31 @@ export function Clientes() {
               <div><strong>CPF:</strong> {selecionado.cpf ?? '—'}</div>
               <div><strong>Status:</strong> {selecionado.ativo ? '✅ Ativo' : '❌ Bloqueado'}</div>
               <div><strong>Cadastro:</strong> {new Date(selecionado.createdAt).toLocaleString('pt-BR')}</div>
+            </div>
+
+            <h3 style={{ color: '#282060', margin: '20px 0 12px' }}>📋 Histórico de Serviços</h3>
+            {loadingHistorico ? (
+              <div style={{ textAlign: 'center', padding: 16, color: '#888' }}>Carregando...</div>
+            ) : historico.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 16, color: '#888' }}>Nenhum serviço encontrado</div>
+            ) : (
+              <div style={{ maxHeight: 240, overflowY: 'auto', border: '1px solid #eee', borderRadius: 8 }}>
+                {historico.map((s, i) => (
+                  <div key={s.id} style={{ padding: '10px 14px', borderBottom: i < historico.length - 1 ? '1px solid #eee' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{s.tipo?.replace(/_/g, ' ')}</div>
+                      <div style={{ fontSize: 11, color: '#888' }}>{new Date(s.createdAt).toLocaleDateString('pt-BR')}</div>
+                      {s.diarista && <div style={{ fontSize: 11, color: '#666' }}>Diarista: {s.diarista.nome}</div>}
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontWeight: 700, color: '#282060' }}>R$ {Number(s.valorTotal).toFixed(2)}</div>
+                      <span style={{ fontSize: 11, background: '#28206015', color: '#282060', padding: '2px 8px', borderRadius: 10 }}>{s.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div style={{ display: 'none' }}
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 24 }}>
               <button onClick={() => bloquear(selecionado.id, selecionado.ativo)} style={{
