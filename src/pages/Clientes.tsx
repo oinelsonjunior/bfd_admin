@@ -55,7 +55,6 @@ export function Clientes() {
     <div style={{ padding: 24 }}>
       <h1 style={{ color: '#282060', marginBottom: 24 }}>👥 Clientes</h1>
 
-      {/* Métricas */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
         {[
           { label: 'Total', value: clientes.length, color: '#282060' },
@@ -69,11 +68,9 @@ export function Clientes() {
         ))}
       </div>
 
-      {/* Busca */}
       <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="🔍 Buscar por nome ou email..."
         style={{ width: '100%', padding: '10px 16px', borderRadius: 8, border: '1.5px solid #ddd', fontSize: 14, marginBottom: 16, boxSizing: 'border-box' }} />
 
-      {/* Tabela */}
       <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
@@ -103,12 +100,7 @@ export function Clientes() {
                     <button onClick={() => verCliente(c)} style={{ padding: '4px 10px', background: '#28206020', color: '#282060', border: '1px solid #282060', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>
                       Ver
                     </button>
-                    <button onClick={() => bloquear(c.id, c.ativo)} disabled={acao === c.id} style={{
-                      padding: '4px 10px', fontSize: 12, borderRadius: 6, cursor: 'pointer', fontWeight: 600,
-                      background: c.ativo ? '#fee2e2' : '#d1fae5',
-                      color: c.ativo ? '#991b1b' : '#065f46',
-                      border: `1px solid ${c.ativo ? '#ef4444' : '#10b981'}`,
-                    }}>
+                    <button onClick={() => bloquear(c.id, c.ativo)} disabled={acao === c.id} style={{ padding: '4px 10px', fontSize: 12, borderRadius: 6, cursor: 'pointer', fontWeight: 600, background: c.ativo ? '#fee2e2' : '#d1fae5', color: c.ativo ? '#991b1b' : '#065f46', border: `1px solid ${c.ativo ? '#ef4444' : '#10b981'}` }}>
                       {acao === c.id ? '...' : c.ativo ? 'Bloquear' : 'Desbloquear'}
                     </button>
                   </div>
@@ -122,16 +114,15 @@ export function Clientes() {
         </table>
       </div>
 
-      {/* Modal */}
       {selecionado && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: 32, width: 520, maxWidth: '90vw', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ background: 'white', borderRadius: 16, padding: 32, width: 560, maxWidth: '90vw', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <h2 style={{ margin: 0, color: '#282060' }}>👤 {selecionado.nome}</h2>
               <button onClick={() => setSelecionado(null)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer' }}>✕</button>
             </div>
 
-            <div style={{ display: 'grid', gap: 10, marginBottom: 20 }}>
+            <div style={{ display: 'grid', gap: 8, marginBottom: 20, background: '#f9f9f9', padding: 16, borderRadius: 8 }}>
               <div><strong>Email:</strong> {selecionado.email}</div>
               <div><strong>Telefone:</strong> {selecionado.telefone}</div>
               <div><strong>CPF:</strong> {selecionado.cpf ?? '—'}</div>
@@ -140,29 +131,32 @@ export function Clientes() {
             </div>
 
             <h3 style={{ color: '#282060', margin: '0 0 12px' }}>📋 Histórico de Serviços</h3>
-            {loadingHistorico ? (
+
+            {loadingHistorico && (
               <div style={{ textAlign: 'center', padding: 16, color: '#888' }}>Carregando...</div>
-            ) : historico.length === 0 ? (
+            )}
+
+            {!loadingHistorico && historico.length === 0 && (
               <div style={{ textAlign: 'center', padding: 16, color: '#888', background: '#f9f9f9', borderRadius: 8 }}>Nenhum serviço encontrado</div>
-            ) : (
-              <div style={{ maxHeight: 240, overflowY: 'auto', border: '1px solid #eee', borderRadius: 8, marginBottom: 16 }}>
+            )}
+
+            {!loadingHistorico && historico.length > 0 && (
+              <div style={{ maxHeight: 280, overflowY: 'auto', border: '1px solid #eee', borderRadius: 8, marginBottom: 16 }}>
                 {historico.map((s, i) => (
-                  <div key={s.id} style={{ padding: '12px 14px', borderBottom: i < historico.length - 1 ? '1px solid #eee' : 'none' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div>
-                        <div style={{ fontWeight: 600, fontSize: 13 }}>{TIPO_LABELS[s.tipo] ?? s.tipo}</div>
-                        <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{new Date(s.createdAt).toLocaleDateString('pt-BR')}</div>
-                        {s.diarista
-                          ? <div style={{ fontSize: 11, color: '#282060', marginTop: 3 }}>👤 {s.diarista.nome}</div>
-                          : <div style={{ fontSize: 11, color: '#aaa', marginTop: 3 }}>👤 Sem diarista</div>
-                        }
-                        {s.endereco && (
-                          <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
-                            📍 {s.endereco.logradouro}, {s.endereco.numero} — {s.endereco.bairro}, {s.endereco.cidade}/{s.endereco.estado}
-                          </div>
-                        )}
+                  <div key={s.id} style={{ padding: '12px 14px', borderBottom: i < historico.length - 1 ? '1px solid #eee' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{TIPO_LABELS[s.tipo] ?? s.tipo}</div>
+                      <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{new Date(s.createdAt).toLocaleDateString('pt-BR')}</div>
+                      <div style={{ fontSize: 11, color: '#282060', marginTop: 3 }}>
+                        👤 {s.diarista ? s.diarista.nome : 'Sem diarista'}
                       </div>
-                    <div style={{ textAlign: 'right' }}>
+                      {s.endereco && (
+                        <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
+                          📍 {s.endereco.logradouro}, {s.endereco.numero} — {s.endereco.bairro}, {s.endereco.cidade}/{s.endereco.estado}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ textAlign: 'right', marginLeft: 12 }}>
                       <div style={{ fontWeight: 700, color: '#282060' }}>R$ {Number(s.valorTotal).toFixed(2)}</div>
                       <span style={{ fontSize: 11, background: '#28206015', color: '#282060', padding: '2px 8px', borderRadius: 10 }}>{s.status}</span>
                     </div>
@@ -172,10 +166,7 @@ export function Clientes() {
             )}
 
             <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <button onClick={() => bloquear(selecionado.id, selecionado.ativo)} style={{
-                flex: 1, padding: '10px', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600,
-                background: selecionado.ativo ? '#ef4444' : '#10b981', color: 'white',
-              }}>
+              <button onClick={() => bloquear(selecionado.id, selecionado.ativo)} style={{ flex: 1, padding: '10px', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, background: selecionado.ativo ? '#ef4444' : '#10b981', color: 'white' }}>
                 {selecionado.ativo ? '🚫 Bloquear' : '✅ Desbloquear'}
               </button>
               <button onClick={() => setSelecionado(null)} style={{ flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: 8, cursor: 'pointer', background: 'white' }}>
