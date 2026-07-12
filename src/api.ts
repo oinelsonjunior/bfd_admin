@@ -20,7 +20,7 @@ export const authApi = {
   login: (email: string, senha: string) => api.post('/auth/login', { email, senha }),
 };
 export const adminApi = {
-  dashboard: () => api.get('/admin/dashboard'),
+  dashboard: (params?: string) => api.get(`/admin/dashboard${params ? '?' + params : ''}`),
   diaristas: (aprovadas?: boolean) =>
     api.get('/admin/diaristas', { params: aprovadas !== undefined ? { aprovadas } : {} }),
   aprovar: (id: string) => api.patch(`/admin/diaristas/${id}/aprovar`),
