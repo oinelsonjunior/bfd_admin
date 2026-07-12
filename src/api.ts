@@ -36,6 +36,8 @@ export const adminApi = {
   relatorioServicos: () => api.get('/admin/relatorios/servicos'),
   relatorioPagamentos: () => api.get('/admin/relatorios/pagamentos'),
   avaliacoes: () => api.get('/admin/avaliacoes'),
+  financeiro: (params?: string) => api.get(`/admin/financeiro${params ? '?' + params : ''}`),
+  cancelamentos: (params?: string) => api.get(`/admin/cancelamentos${params ? '?' + params : ''}`),
   enviarPush: (titulo: string, mensagem: string, role: string) => api.post('/admin/push', { titulo, mensagem, role }),
   uploadFoto: (id: string, base64: string) => api.post(`/admin/diaristas/${id}/foto`, { base64 }),
 };

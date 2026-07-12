@@ -10,6 +10,8 @@ import { Pagamentos } from './pages/Pagamentos';
 import { PushNotificacoes } from './pages/PushNotificacoes';
 import { Relatorios } from './pages/Relatorios';
 import { Avaliacoes } from './pages/Avaliacoes';
+import { Financeiro } from './pages/Financeiro';
+import { Cancelamentos } from './pages/Cancelamentos';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('admin_token');
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="push" element={<PushNotificacoes />} />
           <Route path="relatorios" element={<Relatorios />} />
           <Route path="avaliacoes" element={<Avaliacoes />} />
+          <Route path="financeiro" element={<Financeiro />} />
+          <Route path="cancelamentos" element={<Cancelamentos />} />
         </Route>
       </Routes>
     </BrowserRouter>

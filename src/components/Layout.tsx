@@ -10,6 +10,8 @@ const NAV = [
   { path: '/push', label: '🔔 Notificações Push' },
     { path: '/relatorios', label: '📊 Relatórios' },
     { path: '/avaliacoes', label: '⭐ Avaliações' },
+    { path: '/financeiro', label: '💰 Financeiro' },
+    { path: '/cancelamentos', label: '❌ Cancelamentos' },
 ];
 
 export function Layout() {
