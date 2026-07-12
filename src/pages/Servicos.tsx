@@ -1,16 +1,10 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '../api';
 
-const STATUS_LABELS: Record<string, string> = {
-  aguardando: 'Aguardando', aceito: 'Aceito', a_caminho: 'A caminho',
-  em_andamento: 'Em andamento', concluido: 'Concluído', cancelado: 'Cancelado',
-};
-
 const STATUS_COLORS: Record<string, string> = {
-  aguardando: '#f59e0b', aceito: '#3b82f6', a_caminho: '#8b5cf6',
-  em_andamento: '#10b981', concluido: '#6b7280', cancelado: '#ef4444',
+  aguardando: '#f59e0b', matching: '#3b82f6', aceito: '#8b5cf6',
+  a_caminho: '#FA7D23', em_andamento: '#10b981', concluido: '#065f46', cancelado: '#ef4444',
 };
-
 const TIPO_LABELS: Record<string, string> = {
   limpeza_basica: 'Limpeza Básica', limpeza_completa: 'Limpeza Completa',
   limpeza_pos_obra: 'Limpeza Pós-Obra', passar_roupa: 'Passar Roupa', organizar: 'Organização',
@@ -20,82 +14,90 @@ export function Servicos() {
   const [servicos, setServicos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState('todos');
+  const [cancelando, setCancelando] = useState<string | null>(null);
 
-  useEffect(() => {
+  const carregar = () => {
     adminApi.servicos().then(r => { setServicos(r.data); setLoading(false); });
-  }, []);
+  };
+
+  useEffect(() => { carregar(); }, []);
+
+  const cancelar = async (id: string) => {
+    if (!confirm('Cancelar este serviço?')) return;
+    setCancelando(id);
+    try {
+      await adminApi.cancelarServico(id);
+      carregar();
+    } finally {
+      setCancelando(null);
+    }
+  };
 
   const filtrados = filtro === 'todos' ? servicos : servicos.filter(s => s.status === filtro);
+  const statusCounts = servicos.reduce((acc, s) => { acc[s.status] = (acc[s.status] || 0) + 1; return acc; }, {} as Record<string, number>);
+
+  if (loading) return <div style={{ padding: 32, textAlign: 'center' }}>Carregando...</div>;
 
   return (
-    <div>
-      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Serviços</h1>
-      <p style={{ color: 'var(--text-muted)', marginBottom: 24 }}>Todos os serviços da plataforma</p>
-
-      {/* Filtros */}
+    <div style={{ padding: 24 }}>
+      <h1 style={{ color: '#282060', marginBottom: 24 }}>🧹 Serviços</h1>
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
-        {['todos', 'aguardando', 'aceito', 'em_andamento', 'concluido', 'cancelado'].map(f => (
-          <button key={f} onClick={() => setFiltro(f)} style={{
-            padding: '6px 16px', borderRadius: 50, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
-            background: filtro === f ? '#FA7D23' : '#f4f5f8',
-            color: filtro === f ? 'white' : '#555',
+        {['todos', 'aguardando', 'matching', 'aceito', 'a_caminho', 'em_andamento', 'concluido', 'cancelado'].map(s => (
+          <button key={s} onClick={() => setFiltro(s)} style={{
+            padding: '6px 14px', borderRadius: 20, border: '2px solid',
+            borderColor: filtro === s ? '#282060' : '#ddd',
+            background: filtro === s ? '#282060' : 'white',
+            color: filtro === s ? 'white' : '#555',
+            cursor: 'pointer', fontSize: 12, fontWeight: 600,
           }}>
-            {f === 'todos' ? 'Todos' : STATUS_LABELS[f]}
+            {s === 'todos' ? `Todos (${servicos.length})` : `${s} (${statusCounts[s] || 0})`}
           </button>
         ))}
       </div>
-
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: 60, color: '#888' }}>Carregando...</div>
-      ) : filtrados.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: 60, color: '#888' }}>
-          Nenhum serviço encontrado.
-        </div>
-      ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: '#f4f5f8' }}>
-                {['Tipo', 'Status', 'Cliente', 'Diarista', 'Valor', 'Data'].map(h => (
-                  <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#888', textTransform: 'uppercase' }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtrados.map((s, i) => (
-                <tr key={s.id} style={{ borderTop: '1px solid #f0f0f0', background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                  <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 600 }}>
-                    {TIPO_LABELS[s.tipo] ?? s.tipo}
-                  </td>
-                  <td style={{ padding: '12px 16px' }}>
-                    <span style={{
-                      padding: '3px 10px', borderRadius: 50, fontSize: 12, fontWeight: 700,
-                      background: (STATUS_COLORS[s.status] ?? '#888') + '20',
-                      color: STATUS_COLORS[s.status] ?? '#888',
+      <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: '#282060', color: 'white' }}>
+              <th style={{ padding: '12px 16px', textAlign: 'left' }}>Data</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left' }}>Tipo</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left' }}>Cliente</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left' }}>Diarista</th>
+              <th style={{ padding: '12px 16px', textAlign: 'right' }}>Valor</th>
+              <th style={{ padding: '12px 16px', textAlign: 'center' }}>Status</th>
+              <th style={{ padding: '12px 16px', textAlign: 'center' }}>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtrados.map((s, i) => (
+              <tr key={s.id} style={{ background: i % 2 === 0 ? '#f9f9f9' : 'white', borderBottom: '1px solid #eee' }}>
+                <td style={{ padding: '12px 16px', fontSize: 12 }}>{new Date(s.createdAt).toLocaleString('pt-BR')}</td>
+                <td style={{ padding: '12px 16px', fontSize: 13 }}>{TIPO_LABELS[s.tipo] ?? s.tipo}</td>
+                <td style={{ padding: '12px 16px', fontSize: 13 }}>{s.cliente?.nome ?? '-'}</td>
+                <td style={{ padding: '12px 16px', fontSize: 13 }}>{s.diarista?.nome ?? '—'}</td>
+                <td style={{ padding: '12px 16px', fontSize: 13, textAlign: 'right', fontWeight: 600 }}>R$ {Number(s.valorTotal).toFixed(2)}</td>
+                <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                  <span style={{ background: (STATUS_COLORS[s.status] ?? '#888') + '20', color: STATUS_COLORS[s.status] ?? '#888', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+                    {s.status}
+                  </span>
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                  {!['concluido', 'cancelado'].includes(s.status) && (
+                    <button onClick={() => cancelar(s.id)} disabled={cancelando === s.id} style={{
+                      padding: '4px 12px', background: '#ef444420', color: '#ef4444',
+                      border: '1px solid #ef4444', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600,
                     }}>
-                      {STATUS_LABELS[s.status] ?? s.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: '#555' }}>
-                    {s.cliente?.nome ?? '—'}
-                  </td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: '#555' }}>
-                    {s.diarista?.nome ?? '—'}
-                  </td>
-                  <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 700, color: '#FA7D23' }}>
-                    R$ {Number(s.valorTotal).toFixed(2)}
-                  </td>
-                  <td style={{ padding: '12px 16px', fontSize: 12, color: '#888' }}>
-                    {new Date(s.dataAgendada).toLocaleDateString('pt-BR')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                      {cancelando === s.id ? '...' : 'Cancelar'}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {filtrados.length === 0 && (
+              <tr><td colSpan={7} style={{ padding: 32, textAlign: 'center', color: '#888' }}>Nenhum serviço encontrado</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
