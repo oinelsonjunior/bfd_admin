@@ -51,6 +51,7 @@ export function Pagamentos() {
         <span style={{ fontWeight: 600 }}>Total ({filtrados.length} pagamentos)</span>
         <span style={{ fontWeight: 700, fontSize: 18 }}>R$ {total.toFixed(2)}</span>
       </div>
+      <FiltroDatas dataInicio={dataInicio} dataFim={dataFim} onChange={(i, f) => { setDataInicio(i); setDataFim(f); }} />
       <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
