@@ -154,7 +154,7 @@ export function Clientes() {
                 ))}
               </div>
             )}
-            <div style={{ display: 'none' }}
+
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 24 }}>
               <button onClick={() => bloquear(selecionado.id, selecionado.ativo)} style={{
