@@ -147,12 +147,21 @@ export function Clientes() {
             ) : (
               <div style={{ maxHeight: 240, overflowY: 'auto', border: '1px solid #eee', borderRadius: 8, marginBottom: 16 }}>
                 {historico.map((s, i) => (
-                  <div key={s.id} style={{ padding: '10px 14px', borderBottom: i < historico.length - 1 ? '1px solid #eee' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 13 }}>{TIPO_LABELS[s.tipo] ?? s.tipo}</div>
-                      <div style={{ fontSize: 11, color: '#888' }}>{new Date(s.createdAt).toLocaleDateString('pt-BR')}</div>
-                      {s.diarista && <div style={{ fontSize: 11, color: '#666' }}>Diarista: {s.diarista.nome}</div>}
-                    </div>
+                  <div key={s.id} style={{ padding: '12px 14px', borderBottom: i < historico.length - 1 ? '1px solid #eee' : 'none' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 13 }}>{TIPO_LABELS[s.tipo] ?? s.tipo}</div>
+                        <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{new Date(s.createdAt).toLocaleDateString('pt-BR')}</div>
+                        {s.diarista
+                          ? <div style={{ fontSize: 11, color: '#282060', marginTop: 3 }}>👤 {s.diarista.nome}</div>
+                          : <div style={{ fontSize: 11, color: '#aaa', marginTop: 3 }}>👤 Sem diarista</div>
+                        }
+                        {s.endereco && (
+                          <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
+                            📍 {s.endereco.logradouro}, {s.endereco.numero} — {s.endereco.bairro}, {s.endereco.cidade}/{s.endereco.estado}
+                          </div>
+                        )}
+                      </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontWeight: 700, color: '#282060' }}>R$ {Number(s.valorTotal).toFixed(2)}</div>
                       <span style={{ fontSize: 11, background: '#28206015', color: '#282060', padding: '2px 8px', borderRadius: 10 }}>{s.status}</span>
