@@ -8,6 +8,8 @@ export function Diaristas() {
   const [selecionada, setSelecionada] = useState<any>(null);
   const [acao, setAcao] = useState<string | null>(null);
   const [busca, setBusca] = useState('');
+  const [historico, setHistorico] = useState<any[]>([]);
+  const [loadingHistorico, setLoadingHistorico] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const carregar = (f = filtro) => {
@@ -19,6 +21,18 @@ export function Diaristas() {
   useEffect(() => { carregar(); }, []);
 
   const mudarFiltro = (f: typeof filtro) => { setFiltro(f); carregar(f); };
+
+  const verDiarista = async (d: any) => {
+    setSelecionada(d);
+    setLoadingHistorico(true);
+    setHistorico([]);
+    try {
+      const r = await adminApi.servicosDiarista(d.id);
+      setHistorico(r.data);
+    } finally {
+      setLoadingHistorico(false);
+    }
+  };
 
   const aprovar = async (id: string) => {
     setAcao(id);
@@ -119,7 +133,7 @@ export function Diaristas() {
                     </span>
                   </td>
                   <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                    <button onClick={() => setSelecionada(d)} style={{ padding: '4px 10px', background: '#28206020', color: '#282060', border: '1px solid #282060', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>
+                    <button onClick={() => verDiarista(d)} style={{ padding: '4px 10px', background: '#28206020', color: '#282060', border: '1px solid #282060', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>
                       Ver
                     </button>
                   </td>
@@ -167,6 +181,39 @@ export function Diaristas() {
               {selecionada.descricao && <div><strong>Descrição:</strong> {selecionada.descricao}</div>}
               <div><strong>Cadastro:</strong> {new Date(selecionada.createdAt).toLocaleString('pt-BR')}</div>
             </div>
+
+            <h3 style={{ color: '#282060', margin: '16px 0 12px' }}>📋 Histórico de Serviços</h3>
+
+            {loadingHistorico && (
+              <div style={{ textAlign: 'center', padding: 12, color: '#888' }}>Carregando...</div>
+            )}
+
+            {!loadingHistorico && historico.length === 0 && (
+              <div style={{ textAlign: 'center', padding: 12, color: '#888', background: '#f9f9f9', borderRadius: 8, marginBottom: 16 }}>Nenhum serviço encontrado</div>
+            )}
+
+            {!loadingHistorico && historico.length > 0 && (
+              <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #eee', borderRadius: 8, marginBottom: 16 }}>
+                {historico.map((s: any, i: number) => (
+                  <div key={s.id} style={{ padding: '10px 14px', borderBottom: i < historico.length - 1 ? '1px solid #eee' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{s.tipo?.replace(/_/g, ' ')}</div>
+                      <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{new Date(s.createdAt).toLocaleDateString('pt-BR')}</div>
+                      <div style={{ fontSize: 11, color: '#282060', marginTop: 2 }}>👤 {s.cliente?.nome ?? '—'}</div>
+                      {s.endereco && (
+                        <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
+                          📍 {s.endereco.logradouro}, {s.endereco.numero} — {s.endereco.bairro}, {s.endereco.cidade}/{s.endereco.estado}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ textAlign: 'right', marginLeft: 12 }}>
+                      <div style={{ fontWeight: 700, color: '#282060' }}>R$ {Number(s.valorTotal).toFixed(2)}</div>
+                      <span style={{ fontSize: 11, background: '#28206015', color: '#282060', padding: '2px 8px', borderRadius: 10 }}>{s.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {!selecionada.documentoVerificado && (
