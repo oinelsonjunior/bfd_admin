@@ -8,6 +8,8 @@ const NAV = [
   { path: '/tipos-servico', label: '🔧 Tipos de Serviço' },
   { path: '/pagamentos', label: '💰 Pagamentos' },
   { path: '/push', label: '🔔 Notificações Push' },
+    { path: '/relatorios', label: '📊 Relatórios' },
+    { path: '/avaliacoes', label: '⭐ Avaliações' },
 ];
 
 export function Layout() {
