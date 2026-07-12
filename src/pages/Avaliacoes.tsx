@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '../api';
+import { FiltroDatas } from '../components/FiltroDatas';
 
 function Estrelas({ nota }: { nota: number }) {
   return (
@@ -15,12 +16,19 @@ export function Avaliacoes() {
   const [avaliacoes, setAvaliacoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroNota, setFiltroNota] = useState(0);
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
 
   useEffect(() => {
     adminApi.avaliacoes().then(r => { setAvaliacoes(r.data); setLoading(false); });
   }, []);
 
-  const filtradas = filtroNota === 0 ? avaliacoes : avaliacoes.filter(a => a.avaliacaoNota === filtroNota);
+  const filtradas = avaliacoes.filter(a => {
+    if (filtroNota !== 0 && a.avaliacaoNota !== filtroNota) return false;
+    if (dataInicio && new Date(a.updatedAt) < new Date(dataInicio)) return false;
+    if (dataFim && new Date(a.updatedAt) > new Date(dataFim + 'T23:59:59')) return false;
+    return true;
+  });
   const media = avaliacoes.length > 0 ? avaliacoes.reduce((acc, a) => acc + a.avaliacaoNota, 0) / avaliacoes.length : 0;
 
   if (loading) return <div style={{ padding: 32, textAlign: 'center' }}>Carregando...</div>;
@@ -48,6 +56,8 @@ export function Avaliacoes() {
           <div style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>{avaliacoes.filter(a => a.avaliacaoNota <= 2).length}</div>
         </div>
       </div>
+
+      <FiltroDatas dataInicio={dataInicio} dataFim={dataFim} onChange={(i, f) => { setDataInicio(i); setDataFim(f); }} />
 
       {/* Filtro por nota */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>

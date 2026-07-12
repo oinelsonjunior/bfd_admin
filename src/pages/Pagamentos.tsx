@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '../api';
+import { FiltroDatas } from '../components/FiltroDatas';
 
 const STATUS_COLORS: Record<string, string> = {
   pendente: '#f59e0b', aprovado: '#10b981', recusado: '#ef4444', estornado: '#6b7280',
@@ -12,12 +13,19 @@ export function Pagamentos() {
   const [pagamentos, setPagamentos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState('todos');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
 
   useEffect(() => {
     adminApi.pagamentos().then(r => { setPagamentos(r.data); setLoading(false); });
   }, []);
 
-  const filtrados = filtro === 'todos' ? pagamentos : pagamentos.filter(p => p.status === filtro);
+  const filtrados = pagamentos.filter(p => {
+    if (filtro !== 'todos' && p.status !== filtro) return false;
+    if (dataInicio && new Date(p.createdAt) < new Date(dataInicio)) return false;
+    if (dataFim && new Date(p.createdAt) > new Date(dataFim + 'T23:59:59')) return false;
+    return true;
+  });
   const total = filtrados.reduce((acc, p) => acc + Number(p.valor), 0);
 
   if (loading) return <div style={{ padding: 32, textAlign: 'center' }}>Carregando...</div>;

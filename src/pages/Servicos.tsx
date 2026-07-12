@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { adminApi } from '../api';
+import { FiltroDatas } from '../components/FiltroDatas';
 
 const STATUS_COLORS: Record<string, string> = {
   aguardando: '#f59e0b', matching: '#3b82f6', aceito: '#8b5cf6',
@@ -15,6 +16,8 @@ export function Servicos() {
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState('todos');
   const [cancelando, setCancelando] = useState<string | null>(null);
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
 
   const carregar = () => {
     adminApi.servicos().then(r => { setServicos(r.data); setLoading(false); });
@@ -33,7 +36,12 @@ export function Servicos() {
     }
   };
 
-  const filtrados = filtro === 'todos' ? servicos : servicos.filter(s => s.status === filtro);
+  const filtrados = servicos.filter(s => {
+    if (filtro !== 'todos' && s.status !== filtro) return false;
+    if (dataInicio && new Date(s.createdAt) < new Date(dataInicio)) return false;
+    if (dataFim && new Date(s.createdAt) > new Date(dataFim + 'T23:59:59')) return false;
+    return true;
+  });
   const statusCounts = servicos.reduce((acc, s) => { acc[s.status] = (acc[s.status] || 0) + 1; return acc; }, {} as Record<string, number>);
 
   if (loading) return <div style={{ padding: 32, textAlign: 'center' }}>Carregando...</div>;
